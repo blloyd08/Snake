@@ -1,3 +1,11 @@
+/*
+ * Class: SnakeBoard
+ * Author: Ameet Toor ameet2r@uw.edu
+ * Date: 4/15/2016
+ * Description: This class makes up the board on which the game will be played. It starts and ends the game, as well as
+ * checks for collisions and makes new food.
+ */
+
 package LogicSnake;
 
 import java.awt.*;
@@ -10,10 +18,10 @@ import java.io.IOException;
 
 public class SnakeBoard extends Component {
 
-    /**Width of the maze.*/
+    /**Width of the board.*/
     private final int myWidth;
 
-    /**Depth of maze.*/
+    /**Depth of board.*/
     private final int myHeight;
 
     /**Speed of the snake.*/
@@ -21,6 +29,16 @@ public class SnakeBoard extends Component {
 
     /**Timer*/
     private Timer myTimer;
+
+    /**
+     * The snake that the user will play the game with.
+     */
+    private Snake mySnake;
+
+    /**
+     * Food that will be moved around everytime the old location was gone over by the snake.
+     */
+    private Food myFood;
 
     /**
      * Starts and ends game, as well as creates the board.
@@ -87,12 +105,14 @@ public class SnakeBoard extends Component {
     }
 
 
-    /**Creates timer and sets delay and repeat.*/
+    /**Creates timer and sets delay and repeat. During each tick of the timer,
+     * the snake will move, but will not grow.*/
     private void createTimer()
     {
         myTimer = new Timer(SPEED, theEvent ->
         {
             //Step the snake
+            mySnake.move(false);
         });
         myTimer.stop();
     }
@@ -133,14 +153,23 @@ public class SnakeBoard extends Component {
         //Makes all snake movement workable
 
         //Creates Snake
+        mySnake = new Snake();
 
         //Generates food
+
     }
 
-    public void generateFood() {
-        //Choose random position
-
-        //Generate food
+    public int randomWidth()
+    {
+        return 0;
     }
+
+    public int randomHeight()
+    {
+        return 0;
+    }
+
+
+
 
 }
