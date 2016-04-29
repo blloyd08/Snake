@@ -26,9 +26,6 @@ public class main {
 		System.out.println(s);
 		s.setDirection(Direction.North);
 		System.out.println(s);
-	 	boolean eatFood = s.hasCollision(food.getPosition);
-	 	s.move(eatFood);
-	 	food.newPostion();
 		s.move(false);
 		s.move(false);
 		System.out.println(s);
