@@ -1,4 +1,4 @@
-package LogicSnake
+package LogicSnake;
 
 import java.awt.*;
 import javax.imageio.ImageIO;
