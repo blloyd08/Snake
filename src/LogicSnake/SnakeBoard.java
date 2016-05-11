@@ -1,19 +1,30 @@
+/*
+Class: SnakeBoard
+Author: Ameet Toor
+Date: 4/15/16
+Description: The SnakeBoard class starts and ends the game. It checks to make sure there are no collisions with the
+snake hitting itself. Or the snake hitting the walls. This class will also create the food at random locations. When
+a food is eaten, a new food will be created at a random location.
+ */
+
 package LogicSnake;
 
 import java.awt.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class SnakeBoard extends Component {
 
-    /**Width of the maze.*/
+    //TODO gets keyboard inputs to dictate direction of the move.
+    
+    /**Width of the board.*/
     private final int myWidth;
 
-    /**Depth of maze.*/
+    /**Depth of board.*/
     private final int myHeight;
 
     /**Speed of the snake.*/
@@ -21,6 +32,18 @@ public class SnakeBoard extends Component {
 
     /**Timer*/
     private Timer myTimer;
+
+    /**The food object that will be moved around whenever the Snake object hits it.*/
+    private Food myFood;
+
+    /**The Snake that the user will play with.*/
+    private Snake mySnake;
+
+    /**Arraylist of all X locations that are available.*/
+    private ArrayList<Boolean> myXLocations;
+
+    /**Arraylist of all Y locations that are available.*/
+    private ArrayList<Boolean> myYLocations;
 
     /**
      * Starts and ends game, as well as creates the board.
@@ -31,6 +54,8 @@ public class SnakeBoard extends Component {
     {
         myWidth = theWidth;
         myHeight = theHeight;
+        myXLocations = new ArrayList<>();
+        myYLocations = new ArrayList<>();
     }
 
     /**
@@ -42,14 +67,10 @@ public class SnakeBoard extends Component {
     {
         //TODO: test
         //If snake head location is out of bounds return false.
-        if (theHeadLocation.getX() < 0
+        return !(theHeadLocation.getX() < 0
                 || theHeadLocation.getY() < 0
                 || theHeadLocation.getY() > myHeight
-                || theHeadLocation.getX() > myWidth) {
-            return false;
-        } else {
-            return true;
-        }
+                || theHeadLocation.getX() > myWidth);
     }
 
     /**
@@ -87,12 +108,16 @@ public class SnakeBoard extends Component {
     }
 
 
-    /**Creates timer and sets delay and repeat.*/
+    /**
+     * Creates timer and sets delay and repeat.
+     * Every time the timer ticks, the snake will move but not grow.
+     */
     private void createTimer()
     {
         myTimer = new Timer(SPEED, theEvent ->
         {
             //Step the snake
+            mySnake.move(false);
         });
         myTimer.stop();
     }
@@ -121,6 +146,7 @@ public class SnakeBoard extends Component {
         myTimer.stop();
 
         //Stops all movement controls from working.
+        //TODO
 
         //Displays end of game message.
         displayEndOfGameMessage();
@@ -131,16 +157,69 @@ public class SnakeBoard extends Component {
         createTimer();
 
         //Makes all snake movement workable
+        //TODO
 
         //Creates Snake
+        mySnake = new Snake();
 
         //Generates food
+        generateFood();
     }
 
     public void generateFood() {
         //Choose random position
+        final int x = randomWidth();
+        final int y = randomHeight();
 
         //Generate food
+        myFood = new Food(x,y);
     }
+
+    /**
+     * Randomly chooses an int that is within the bounds of the x axis.
+     * Will be a different int each time, no repeats.
+     * @return An int that is within the x axis.
+     */
+    private int randomWidth()
+    {
+        //TODO Test
+
+        //Randomly select an X
+        int x = randomInt(myXLocations.size());
+
+        //Whenever an X location is chosen remove the location from the list.
+        myXLocations.remove(x);
+
+        return x;
+    }
+
+    /**
+     * Randomly chooses an int that is within the bounds of the y axis.
+     * Will be a different int each time, no repeats.
+     * @return An int that is within the y axis.
+     */
+    private int randomHeight()
+    {
+        //TODO Test
+        // Randomly select an that is not true
+        int y = randomInt(myYLocations.size());
+
+        //Whenever a Y location is chosen remove the location from the list
+        myYLocations.remove(y);
+        return y;
+    }
+
+    /**
+     * Returns a random integer between 0 and theRange - 1.
+     * @param theRange The range to choose a number between.
+     * @return Random int between 0 and theRange - 1.
+     */
+    private int randomInt(int theRange)
+    {
+        //Todo Test
+        Random random = new Random();
+        return random.nextInt(theRange);
+    }
+
 
 }
