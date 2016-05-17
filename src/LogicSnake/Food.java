@@ -5,18 +5,19 @@ import java.util.Random;
 
 public class Food implements Collidable {
 	
-	/** The maximum x position */
-	private final int myWidthMax;
-	
-	/** The maximum y position */
-	private final int myHeightMax;
+//	/** The maximum x position */
+//	private final int myWidthMax;
+//	
+//	/** The maximum y position */
+//	private final int myHeightMax;
 	
 	/** The Location of the one food position */
 	private Point myLocation;
 	
-	public Food(final int theBoardWidth, final int theBoardHeight){
-		myWidthMax = theBoardWidth;
-		myHeightMax = theBoardHeight;
+	public Food(final int theXPosition, final int theYPosition){
+//		myWidthMax = theBoardWidth;
+//		myHeightMax = theBoardHeight;
+		myLocation = new Point(theXPosition, theYPosition);
 	}
 	
 	/**
@@ -32,13 +33,13 @@ public class Food implements Collidable {
 	 * Randomly sets the food location by randomly selecting an x position
 	 * between 0 and the width and a random y position between 0 and the height.
 	 */
-	public void newLocation(){
-		Random ran = new Random();
-		int x, y;
-		x = ran.nextInt(myWidthMax + 1);
-		y = ran.nextInt(myHeightMax + 1);
-		myLocation = new Point(x,y);
-	}
+//	public void newLocation(){
+//		Random ran = new Random();
+//		int x, y;
+//		x = ran.nextInt(myWidthMax + 1);
+//		y = ran.nextInt(myHeightMax + 1);
+//		myLocation = new Point(x,y);
+//	}
 
 	/**
 	 * Checks if the parameter point matches the foods point

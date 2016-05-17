@@ -47,14 +47,14 @@ public class Snake implements Collidable{
 	 * 
 	 * @param willGrow flag determining if the snake should grow when move is complete
 	 */
-	public void move(boolean willGrow){
+	public boolean move(boolean willGrow){
 		Point tempPosition = myHead.position;
 		
 		//Change HeadPosition
 		Point directionPoint = decodeDirection(myDirection);
 		myHead.position = new Point( myHead.position.x + directionPoint.x,
 									 myHead.position.y + directionPoint.y);
-		moveSnakeBody(myHead, tempPosition, willGrow);
+		return moveSnakeBody(myHead, tempPosition, myHead.position, willGrow);
 		
 	}
 	
@@ -71,6 +71,15 @@ public class Snake implements Collidable{
 		getSnakePositions(allPositions, myHead);
 		
 		return allPositions;
+	}
+	
+	/**
+	 * Returns the position of the head of the snake.
+	 * 
+	 * @return position of the head node of the snake
+	 */
+	public Point getHeadPosition(){
+		return new Point(myHead.position.x, myHead.position.y);
 	}
 	
 	public String toString(){
@@ -93,7 +102,9 @@ public class Snake implements Collidable{
 	 */
 	@Override
 	public boolean hasCollision(Point newPosition) {
-		return bodyCollision(myHead, newPosition);
+		boolean collisionFound = bodyCollision(myHead,newPosition);
+		System.out.println(collisionFound);
+		return collisionFound;
 	}
 	
 	/**
@@ -104,8 +115,8 @@ public class Snake implements Collidable{
 	 */
 	private boolean bodyCollision(SnakeNode body, Point newPosition){
 		if (body == null) return false;
-		
-		if (body.position.equals(newPosition)){
+		System.out.println("\nBody: " + body.position + " Food Position: " + newPosition);
+		if (newPosition.equals(body.position)){
 			return true;
 		} else {
 			return bodyCollision(body.next, newPosition);
@@ -132,18 +143,28 @@ public class Snake implements Collidable{
 	 * @param head snake node that is already in position, all nodes following will be moved.
 	 * @param position the position that the next node should be moved to.
 	 * @param grow flag determining if a new node should be added to the back of the snake
+	 * 
+	 * @return true if the snake collides with itself, false otherwise
 	 */
-	private void moveSnakeBody(SnakeNode head, Point position, boolean grow){
+	private boolean moveSnakeBody(SnakeNode head, Point position, Point collisionPoint, boolean grow){
+		//Check if passed node is null, base case
 		if (head != null){
+			//System.out.println("\nHead: " + head.position + "\nCollision: " + collisionPoint);
+			//Reached end of snake, add new node if needing to grow
 			if (head.next == null){
-				if (grow)
+				if (grow){
 					head.next = new SnakeNode(position.x, position.y);
-			} else {
+				}
+			}
+			//Check next node in the snake, check for collision with self
+			else {
 				Point tmpPosition  = head.next.position;
 				head.next.position = position;
-				moveSnakeBody(head.next, tmpPosition, grow);
+				return collisionPoint.equals(head.next.position) 
+						| moveSnakeBody(head.next, tmpPosition, collisionPoint, grow);
 			}
 		}
+		return false;
 
 	}
 	

@@ -21,13 +21,18 @@ public class SnakeBoard extends Component {
 
     //TODO gets keyboard inputs to dictate direction of the move.
     
-    /**Width of the board.*/
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**Width of the board.*/
     private final int myWidth;
 
     /**Depth of board.*/
     private final int myHeight;
 
-    /**Speed of the snake.*/
+    /**Speed of the snake. Timer tick duration*/
     private final int SPEED = 1000;
 
     /**Timer*/
@@ -38,7 +43,10 @@ public class SnakeBoard extends Component {
 
     /**The Snake that the user will play with.*/
     private Snake mySnake;
-
+    
+    /**Flag to mark that food has collided with the snake head.*/
+    private boolean myWillGrow;
+    
     /**Arraylist of all X locations that are available.*/
     private ArrayList<Boolean> myXLocations;
 
@@ -56,14 +64,19 @@ public class SnakeBoard extends Component {
         myHeight = theHeight;
         myXLocations = new ArrayList<>();
         myYLocations = new ArrayList<>();
+        myWillGrow = false;
     }
+    
+	public void setDirection(Direction theDirection){
+		mySnake.setDirection(theDirection);
+	}
 
     /**
      * Returns true if the given Snake head is within bounds. False otherwise.
      * Out of bounds means location < 0 or location > width or location > height.
      * @return True if snake head not out of bounds. False if out of bounds.
      */
-    public Boolean withinBounds(Point theHeadLocation)
+    public boolean withinBounds(Point theHeadLocation)
     {
         //TODO: test
         //If snake head location is out of bounds return false.
@@ -78,35 +91,26 @@ public class SnakeBoard extends Component {
      * with itself.
      * @return True if snake collided with itself, false otherwise.
      */
-    public Boolean isThereCollision(Point theBodyLocations[])
+    public boolean isThereCollision()
     {
         //TODO Test
         Boolean result = false;
-        //Check to make sure the array is not empty
-        if ( theBodyLocations.length < 1 )
-        {
-            System.out.println("Array is empty!");
-            result = false;
-        } else
-        {
-            //If snake head is equal to any other point in the array there has been a collision
-
-            //The head Point
-            Point myHeadLocation = theBodyLocations[0];
-
-            //TODO check if faster way to compare points. Sort array?
-            //Go through array and check if any of the locations match.
-            for (Point point: theBodyLocations)
-            {
-                if (point.getX() == myHeadLocation.getX() && point.getY() == myHeadLocation.getY())
-                {
-                    result = true;
-                }
-            }
-        }
+        
+        //Check if snake head is within the bounds of the game board
+        if (mySnake.getHeadPosition().x > myWidth - 1 || mySnake.getHeadPosition().x < 0
+        		|| mySnake.getHeadPosition().y > myHeight - 1 || mySnake.getHeadPosition().y < 0)
+        	result = true;
+        
         return result;
     }
 
+    /**
+     * Returns whether the game timer is running. This resembles the current game running status.
+     * @return true if the game is running, false otherwise
+     */
+    public boolean isGameRunning(){
+    	return myTimer.isRunning();
+    }
 
     /**
      * Creates timer and sets delay and repeat.
@@ -116,28 +120,57 @@ public class SnakeBoard extends Component {
     {
         myTimer = new Timer(SPEED, theEvent ->
         {
-            //Step the snake
-            mySnake.move(false);
+            update();
         });
         myTimer.stop();
+    }
+    
+    //Updates game state
+    //Called at each timer tick
+    private void update(){
+    	boolean snakeBodyCollision = false;
+    	
+    	//Step the snake - Returns true is snake collides with self
+        snakeBodyCollision = mySnake.move(myWillGrow);
+        //System.out.println(snakeBodyCollision);
+        
+        //Handle snake collision with self
+        if (snakeBodyCollision || isThereCollision())
+        	endGame();
+        
+        //Set grow flag off if previously set
+        myWillGrow = false;
+        
+        //If snake head collides with food. Grow snake and place new food
+        myWillGrow = (mySnake.getHeadPosition().equals(myFood.getLocation()));
+        //System.out.println("\nWill grow: " + myWillGrow);
+        //System.out.println(mySnake.getHeadPosition() + " " + myFood.getLocation());
+        if(myWillGrow){
+        	//Place new food
+        	generateFood();
+        }
+        	
     }
 
     /**
      * Opens JOptionPane that displays the message: "Game Over".
+     * 
+     *Possibly the front end should take care of this. Maybe a print to console?
      */
     public void displayEndOfGameMessage()
     {
-        //Display end of game message.
-        try
-        {
-            final ImageIcon icon = new ImageIcon(ImageIO.read(
-                    new File("images/gameOver.jpg")));
-            JOptionPane.showMessageDialog(this, "", "Game Over"
-                    , JOptionPane.INFORMATION_MESSAGE, icon);
-        } catch (final IOException exception)
-        {
-            exception.printStackTrace();
-        }
+    	System.err.println("Game Over");
+//        //Display end of game message.
+//        try
+//        {
+//            final ImageIcon icon = new ImageIcon(ImageIO.read(
+//                    new File("images/gameOver.jpg")));
+//            JOptionPane.showMessageDialog(this, "", "Game Over"
+//                    , JOptionPane.INFORMATION_MESSAGE, icon);
+//        } catch (final IOException exception)
+//        {
+//            exception.printStackTrace();
+//        }
 
     }
 
@@ -152,6 +185,7 @@ public class SnakeBoard extends Component {
         displayEndOfGameMessage();
     }
 
+    // Should the timer be started on the start of the game?
     public void startGame() {
         //Starts timer
         createTimer();
@@ -164,13 +198,23 @@ public class SnakeBoard extends Component {
 
         //Generates food
         generateFood();
+        
+        myTimer.start();
+        
     }
 
     public void generateFood() {
-        //Choose random position
-        final int x = randomWidth();
-        final int y = randomHeight();
-
+    	
+    	//Choose random position
+    	int x;
+        int y;
+    	
+    	//Keep placing food until it doesn't overlap with the snake.
+    	do {
+    		x = randomWidth();
+            y = randomHeight();
+    	} while(mySnake.hasCollision(new Point(x,y)));
+    	System.out.println("X: " + x + " Y: " + y);
         //Generate food
         myFood = new Food(x,y);
     }
@@ -185,10 +229,10 @@ public class SnakeBoard extends Component {
         //TODO Test
 
         //Randomly select an X
-        int x = randomInt(myXLocations.size());
+        int x = randomInt(myWidth);
 
         //Whenever an X location is chosen remove the location from the list.
-        myXLocations.remove(x);
+        //myXLocations.remove(x);
 
         return x;
     }
@@ -202,10 +246,10 @@ public class SnakeBoard extends Component {
     {
         //TODO Test
         // Randomly select an that is not true
-        int y = randomInt(myYLocations.size());
+        int y = randomInt(myHeight);
 
         //Whenever a Y location is chosen remove the location from the list
-        myYLocations.remove(y);
+        //myYLocations.remove(y);
         return y;
     }
 
@@ -221,5 +265,32 @@ public class SnakeBoard extends Component {
         return random.nextInt(theRange);
     }
 
+	public void printBoard(){
+		ArrayList<Point> snakeBodyPoints = new ArrayList<Point>(mySnake.getPositions());
+		char[][] board = new char[myWidth][myHeight];
+		for (Point p : snakeBodyPoints)
+			board[p.x][p.y] = 'X';
+		board[myFood.getLocation().x][myFood.getLocation().y] = 'O';
+		System.out.print("\n_");
+		for (int i = 0; i < myWidth; i++)
+			System.out.print(i);
+		System.out.print('_');
+		for (int i = 0; i < board.length; i++){
+			System.out.print("\n" + i);
+			for (int j = 0; j < board[0].length; j++){
+				if (board[j][i] == 'X')
+					System.out.print('X');
+				else if (board[j][i] == 'O')
+					System.out.print('O');
+				else
+					System.out.print(" ");
+				
+			}
+			System.out.print("|");
+		}
+		System.out.print("\n--");
+		for (int i = 0; i < myWidth; i++)
+			System.out.print('-');
+	}
 
 }
