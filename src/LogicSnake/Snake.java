@@ -14,6 +14,7 @@ import java.util.Collection;
 /**
  * This class represents the snake who has a body made up of nodes that all follow each other
  * when the snake moves. The snake can grow in size and moves in four Directions.
+ * 
  * @author Brian Lloyd
  */
 public class Snake implements Collidable{
@@ -81,6 +82,7 @@ public class Snake implements Collidable{
 	public Point getHeadPosition(){
 		return new Point(myHead.position.x, myHead.position.y);
 	}
+	
 	
 	public String toString(){
 		Collection<Point> positions = getPositions();
@@ -199,6 +201,7 @@ public class Snake implements Collidable{
 
 	/**
 	 * Snake node class represents a block on the snake.
+	 * 
 	 * @author Brian Lloyd
 	 */
 	class SnakeNode{
